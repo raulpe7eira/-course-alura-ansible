@@ -2,6 +2,13 @@
 
 - hosts: all
 
+  handlers:
+    - name: restart_apache
+      service:
+        name: apache2
+        state: restarted
+      become: yes
+
   tasks:
 
     - name: 'Instala dependências no SO'
@@ -63,3 +70,11 @@
         - { regex: 'username_here', value: 'wordpress_user' }
         - { regex: 'password_here', value: '12345' }
       become: yes
+
+    - name: 'Configura Apache'
+      copy:
+        src: 'files/000-default.conf'
+        dest: '/etc/apache2/sites-available/000-default.conf'
+      become: yes
+      notify:
+        - restart_apache
