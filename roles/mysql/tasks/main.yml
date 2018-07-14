@@ -24,9 +24,7 @@
     state: present
     host: "{{ item }}"
   with_items:
-    - 'localhost'
-    - '127.0.0.1'
-    - "{{ wp_host_ip }}"
+    - "{{ wp_host }}"
 
 - name: 'Configura MySQL'
   copy:

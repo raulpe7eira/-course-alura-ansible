@@ -4,7 +4,6 @@
   roles:
     - mysql
 
-- hosts: wordpress
+- hosts: application
   roles:
-    - webserver
     - wordpress

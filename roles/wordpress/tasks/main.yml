@@ -25,7 +25,7 @@
     regexp: "{{ item.regex }}"
     replace: "{{ item.value }}"
   with_items:
-    - { regex: 'localhost', value: "{{ wp_db_ip }}" }
+    - { regex: 'localhost', value: "{{ wp_db_host }}" }
     - { regex: 'database_name_here', value: "{{ wp_db_name }}" }
     - { regex: 'username_here', value: "{{ wp_db_user }}" }
     - { regex: 'password_here', value: "{{ wp_db_password }}" }
