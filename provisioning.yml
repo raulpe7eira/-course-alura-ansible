@@ -1,6 +1,53 @@
 ---
 
-- hosts: all
+- hosts: database
+
+  handlers:
+    - name: restart_mysql
+      service:
+        name: mysql
+        state: restarted
+      become: yes
+
+  tasks:
+
+    - name: 'Instala dependências no SO'
+      apt:
+        name: "{{ item }}"
+        state: latest
+      become: yes
+      with_items:
+        - mysql-server-5.6
+        - python-mysqldb
+
+    - name: 'Cria database no MySQL'
+      mysql_db:
+        name: wordpress_db
+        login_user: root
+        state: present
+
+    - name: 'Cria acessos no MySQL'
+      mysql_user:
+        name: wordpress_user
+        password: 12345
+        priv: 'wordpress_db.*:ALL'
+        login_user: root
+        state: present
+        host: "{{ item }}"
+      with_items:
+        - 'localhost'
+        - '127.0.0.1'
+        - '172.17.177.40'
+
+    - name: 'Configura MySQL'
+      copy:
+        src: 'files/my.cnf'
+        dest: '/etc/mysql/my.cnf'
+      become: yes
+      notify:
+        - restart_mysql
+
+- hosts: wordpress
 
   handlers:
     - name: restart_apache
@@ -18,28 +65,12 @@
       become: yes
       with_items:
         - php5
+        - php5-gd
+        - php5-mcrypt
+        - php5-mysql
         - apache2
         - libapache2-mod-php5
-        - php5-gd
         - libssh2-php
-        - php5-mcrypt
-        - mysql-server-5.6
-        - python-mysqldb
-        - php5-mysql
-
-    - name: 'Cria database no MySQL'
-      mysql_db:
-        name: wordpress_db
-        login_user: root
-        state: present
-
-    - name: 'Cria acessos no MySQL'
-      mysql_user:
-        name: wordpress_user
-        password: 12345
-        priv: 'wordpress_db.*:ALL'
-        login_user: root
-        state: present
 
     - name: 'Baixa Wordpress'
       get_url:
@@ -66,6 +97,7 @@
         regexp: "{{ item.regex }}"
         replace: "{{ item.value }}"
       with_items:
+        - { regex: 'localhost', value: '172.17.177.42' }
         - { regex: 'database_name_here', value: 'wordpress_db' }
         - { regex: 'username_here', value: 'wordpress_user' }
         - { regex: 'password_here', value: '12345' }
