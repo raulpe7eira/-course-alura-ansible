@@ -1,0 +1,15 @@
+---
+
+- name: 'Instala dependências no SO'
+  apt:
+    name: "{{ item }}"
+    state: latest
+  become: yes
+  with_items:
+    - php5
+    - php5-gd
+    - php5-mcrypt
+    - php5-mysql
+    - apache2
+    - libapache2-mod-php5
+    - libssh2-php
